@@ -5,7 +5,6 @@ import { BrandLogo } from "@/components/brand-logo";
 import { supabase, getAuthErrorMessage } from "@/lib/supabase";
 import { loadAdminProfile } from "@/lib/auth";
 import { isDemoMode } from "@/lib/api/source";
-import loginBackground from "@/assets/login-hero.webp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,28 +52,42 @@ function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden select-none">
-      {/* Static background image */}
-      <div aria-hidden className="absolute inset-0 overflow-hidden">
-        <img
-          src={loginBackground}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+      {/* Brand background: mesh gradient + orbs + grain */}
+      <div aria-hidden className="login-surface absolute inset-0 overflow-hidden">
+        <div
+          className="login-orb -left-[14%] -top-[16%] h-[42rem] w-[42rem]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(31,165,196,0.55) 0%, rgba(31,165,196,0) 68%)",
+          }}
+        />
+        <div
+          className="login-orb login-orb-b -right-[16%] top-[4%] h-[38rem] w-[38rem]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(35,149,126,0.5) 0%, rgba(35,149,126,0) 68%)",
+          }}
+        />
+        <div
+          className="login-orb login-orb-c -bottom-[22%] left-[24%] h-[40rem] w-[40rem]"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(29,124,105,0.48) 0%, rgba(29,124,105,0) 70%)",
+          }}
+        />
+        <div className="login-grain absolute inset-0" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(8,18,32,0) 30%, rgba(8,18,32,0.55) 100%)",
+          }}
         />
       </div>
 
-      {/* Corporate navy overlay */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(155deg, rgba(13,30,52,0.88) 0%, rgba(21,54,94,0.72) 48%, rgba(10,22,38,0.93) 100%), radial-gradient(ellipse at center, rgba(8,18,32,0) 35%, rgba(8,18,32,0.55) 100%)",
-        }}
-      />
-
       <div className="w-full max-w-[400px] relative">
         {/* Logo + title */}
-        <div className="text-center mb-10">
+        <div className="login-enter text-center mb-10">
           <div className="flex justify-center mb-4">
             <BrandLogo size={52} variant="light" />
           </div>
@@ -91,14 +104,25 @@ function AdminLogin() {
 
         {/* Glass card */}
         <div
-          className="rounded-2xl p-8 shadow-[0_16px_48px_rgba(0,0,0,0.35)] relative overflow-hidden"
+          className="login-enter login-enter-delay-1 rounded-2xl p-8 relative overflow-hidden"
           style={{
-            background: "rgba(255, 255, 255, 0.55)",
+            background: "rgba(255, 255, 255, 0.58)",
             backdropFilter: "blur(32px)",
             WebkitBackdropFilter: "blur(32px)",
-            border: "1px solid rgba(255, 255, 255, 0.25)",
+            border: "1px solid rgba(31, 165, 196, 0.45)",
+            boxShadow:
+              "0 24px 64px rgba(3, 10, 20, 0.45), 0 0 0 1px rgba(31, 165, 196, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35)",
           }}
         >
+          {/* Cyan edge accent */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-px pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(31, 165, 196, 0.9), transparent)",
+            }}
+          />
           {/* Light reflection highlight */}
           <div
             aria-hidden
