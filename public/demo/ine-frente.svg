@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <rect width="640" height="400" rx="24" fill="#eaf1f8"/>
+  <rect x="0" y="0" width="640" height="70" rx="24" fill="#9b2c4f"/>
+  <rect x="0" y="40" width="640" height="30" fill="#9b2c4f"/>
+  <text x="32" y="46" font-family="Arial" font-size="22" font-weight="700" fill="#fff">CREDENCIAL PARA VOTAR · EJEMPLO</text>
+  <rect x="32" y="100" width="150" height="190" rx="10" fill="#cbd5e1"/>
+  <circle cx="107" cy="170" r="38" fill="#94a3b8"/>
+  <rect x="62" y="220" width="90" height="50" rx="25" fill="#94a3b8"/>
+  <g font-family="Arial" fill="#1c2e4a">
+    <text x="210" y="125" font-size="14" fill="#64748b">NOMBRE</text>
+    <text x="210" y="150" font-size="22" font-weight="700">APELLIDO APELLIDO</text>
+    <text x="210" y="176" font-size="22" font-weight="700">NOMBRE DE EJEMPLO</text>
+    <text x="210" y="215" font-size="14" fill="#64748b">DOMICILIO</text>
+    <text x="210" y="238" font-size="16">CALLE 123, COL. CENTRO, PUEBLA</text>
+    <text x="210" y="275" font-size="14" fill="#64748b">CLAVE DE ELECTOR</text>
+    <text x="210" y="298" font-size="18" font-family="monospace">XXXXXX00000000H000</text>
+  </g>
+  <text x="32" y="370" font-family="Arial" font-size="13" fill="#94a3b8">Imagen de ejemplo — modo demostración</text>
+</svg>

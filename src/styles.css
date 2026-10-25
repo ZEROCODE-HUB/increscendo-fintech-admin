@@ -1,0 +1,358 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-display-serif: "Null Free", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Paleta extendida: neutros, rojos de error y escala navy */
+  --color-black-900: var(--black-900);
+  --color-black-800: var(--black-800);
+  --color-black-700: var(--black-700);
+  --color-black-600: var(--black-600);
+  --color-black-500: var(--black-500);
+  --color-black-400: var(--black-400);
+  --color-black-300: var(--black-300);
+  --color-black-200: var(--black-200);
+  --color-black-100: var(--black-100);
+  --color-black-50: var(--black-50);
+
+  --color-red-700: var(--red-700);
+  --color-red-600: var(--red-600);
+  --color-red-500: var(--red-500);
+  --color-red-400: var(--red-400);
+  --color-red-300: var(--red-300);
+  --color-red-200: var(--red-200);
+  --color-red-100: var(--red-100);
+  --color-red-50: var(--red-50);
+
+  --color-navy-700: var(--navy-700);
+  --color-navy-600: var(--navy-600);
+  --color-navy-500: var(--navy-500);
+  --color-navy-400: var(--navy-400);
+  --color-navy-300: var(--navy-300);
+  --color-navy-200: var(--navy-200);
+  --color-navy-100: var(--navy-100);
+  --color-navy-50: var(--navy-50);
+
+  --color-plata-600: var(--plata-600);
+  --color-plata-500: var(--plata-500);
+  --color-plata-400: var(--plata-400);
+  --color-plata-300: var(--plata-300);
+  --color-plata-200: var(--plata-200);
+  --color-plata-100: var(--plata-100);
+  --color-plata-50: var(--plata-50);
+
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-darker: var(--brand-darker);
+  --color-brand-light: var(--brand-light);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-dark: var(--brand-accent-dark);
+  --color-brand-accent-light: var(--brand-accent-light);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-dark: var(--brand-navy-dark);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-cyan-light: var(--brand-cyan-light);
+  --color-sidebar-bg: var(--sidebar-bg);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.375rem;
+
+  /* ── Paleta de marca Increscendo Fintech ──
+     Navy (primario institucional) + verde aqua (acción / éxito) + cian (logo). */
+  --brand: #1d7c69;            /* botones primarios (verde aqua oscuro, contraste AA) */
+  --brand-dark: #176354;
+  --brand-darker: #114a3f;
+  --brand-light: #eafaf7;
+  --brand-accent: #23957e;     /* ítem activo del menú */
+  --brand-accent-dark: #1d7c69;
+  --brand-accent-light: #c9f2ea;
+  --brand-navy: #1c2e4a;
+  --brand-navy-dark: #152337;
+  --brand-cyan: #1fa5c4;
+  --brand-cyan-light: #e6f6fa;
+  --sidebar-bg: #1c2e4a;
+
+  --ink: #14213a;
+  --ink-soft: #2d3748;
+  --ink-muted: #64748b;
+  --line: #d8dee8;
+  --canvas: #f4f6f9;
+  --surface: #ffffff;
+
+  /* ── shadcn semantic tokens (light) ── */
+  --background: var(--canvas);
+  --foreground: var(--ink);
+
+  --card: #ffffff;
+  --card-foreground: var(--ink-soft);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink-soft);
+
+  --primary: var(--brand);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--brand-navy);
+  --secondary-foreground: #ffffff;
+
+  --muted: var(--canvas);
+  --muted-foreground: var(--ink-muted);
+
+  --accent: var(--brand-cyan-light);
+  --accent-foreground: var(--brand-navy);
+
+  --destructive: #c62828;
+  --destructive-foreground: #ffffff;
+
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+
+  /* ── Sidebar ── */
+  --sidebar: #eef2f8;
+  --sidebar-foreground: var(--ink-soft);
+  --sidebar-primary: var(--brand-navy);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dfe7f3;
+  --sidebar-accent-foreground: var(--brand-navy);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--brand);
+
+  /* ── Paleta extendida (neutros, rojos de error, escala navy Increscendo) ── */
+  --black-900: #000000;
+  --black-800: #1a1a1a;
+  --black-700: #2e2e2e;
+  --black-600: #474747;
+  --black-500: #5e5e5e;
+  --black-400: #767676;
+  --black-300: #909090;
+  --black-200: #b3b3b3;
+  --black-100: #d4d4d4;
+  --black-50: #f0f0f0;
+
+  --red-700: #8b0014;
+  --red-600: #ad0019;
+  --red-500: #d3001f;
+  --red-400: #e6394f;
+  --red-300: #f06a7a;
+  --red-200: #f5a0aa;
+  --red-100: #fcd3d8;
+  --red-50: #fff0f1;
+
+  --navy-700: #152337;
+  --navy-600: #2b4264;
+  --navy-500: #3c5a86;
+  --navy-400: #5377ac;
+  --navy-300: #839dc3;
+  --navy-200: #b2c3dc;
+  --navy-100: #dae3f1;
+  --navy-50: #f0f4fa;
+
+  --plata-600: #8a8a8a;
+  --plata-500: #a8a8a8;
+  --plata-400: #cecece;
+  --plata-300: #dedede;
+  --plata-200: #ebebeb;
+  --plata-100: #f5f5f5;
+  --plata-50: #fafafa;
+}
+
+.dark {
+  --background: #0f1828;
+  --foreground: #f5f6f8;
+
+  --card: #16233a;
+  --card-foreground: #f5f6f8;
+  --popover: #16233a;
+  --popover-foreground: #f5f6f8;
+
+  --primary: var(--brand);
+  --primary-foreground: #ffffff;
+
+  --secondary: var(--brand-navy-dark);
+  --secondary-foreground: #ffffff;
+
+  --muted: #1e2a4a;
+  --muted-foreground: #a9b8d3;
+
+  --accent: #25336b;
+  --accent-foreground: #a9b8d3;
+
+  --destructive: #c62828;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: var(--brand);
+
+  --sidebar: #0f1a37;
+  --sidebar-foreground: #eeeff8;
+  --sidebar-primary: var(--brand-navy);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #25336b;
+  --sidebar-accent-foreground: #a9b8d3;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* ── Paleta extendida (neutros, rojos de error, escala navy Increscendo) ── */
+  --black-900: #000000;
+  --black-800: #1a1a1a;
+  --black-700: #2e2e2e;
+  --black-600: #474747;
+  --black-500: #5e5e5e;
+  --black-400: #767676;
+  --black-300: #909090;
+  --black-200: #b3b3b3;
+  --black-100: #d4d4d4;
+  --black-50: #f0f0f0;
+
+  --red-700: #8b0014;
+  --red-600: #ad0019;
+  --red-500: #d3001f;
+  --red-400: #e6394f;
+  --red-300: #f06a7a;
+  --red-200: #f5a0aa;
+  --red-100: #fcd3d8;
+  --red-50: #fff0f1;
+
+  --navy-700: #152337;
+  --navy-600: #2b4264;
+  --navy-500: #3c5a86;
+  --navy-400: #5377ac;
+  --navy-300: #839dc3;
+  --navy-200: #b2c3dc;
+  --navy-100: #dae3f1;
+  --navy-50: #f0f4fa;
+
+  --plata-600: #8a8a8a;
+  --plata-500: #a8a8a8;
+  --plata-400: #cecece;
+  --plata-300: #dedede;
+  --plata-200: #ebebeb;
+  --plata-100: #f5f5f5;
+  --plata-50: #fafafa;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    /* Escala tipográfica base ≥16px en móvil evita que iOS haga zoom al
+       enfocar inputs con font-size reducido (text-xs/text-sm). */
+    font-size: 1rem;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button:not(:disabled), a, [role="button"] {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .font-semibold,
+  strong,
+  b {
+    font-weight: 600;
+  }
+
+  ::selection {
+    background-color: var(--brand-accent-light);
+    color: var(--brand-darker);
+  }
+
+  /* textos seleccionables: permitir copiar folios, correos, montos */
+  p, span, div, td, th, h1, h2, h3, h4, label, li, dd, dt {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+/* Fuera de cualquier @layer para ganar a las utilidades de Tailwind (text-xs/text-sm):
+   iOS hace zoom al enfocar un campo con font-size < 16px. */
+@media (max-width: 767.98px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+@keyframes brand-kenburns {
+  0% {
+    transform: scale(1.15) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: scale(1.3) translate3d(-2%, -1.5%, 0);
+  }
+  50% {
+    transform: scale(1.22) translate3d(2%, 1%, 0);
+  }
+  75% {
+    transform: scale(1.32) translate3d(-1%, 2%, 0);
+  }
+  100% {
+    transform: scale(1.15) translate3d(0, 0, 0);
+  }
+}
+
+.animate-kenburns {
+  animation: brand-kenburns 20s ease-in-out infinite;
+  will-change: transform;
+}
