@@ -53,22 +53,22 @@ function AdminLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden select-none">
-      {/* Animated background image */}
+      {/* Static background image */}
       <div aria-hidden className="absolute inset-0 overflow-hidden">
         <img
           src={loginBackground}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover animate-kenburns"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
 
-      {/* Contrast overlay */}
+      {/* Corporate navy overlay */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(160deg, rgba(21,35,55,0.82) 0%, rgba(28,46,74,0.62) 45%, rgba(21,35,55,0.85) 100%), radial-gradient(ellipse at center, rgba(14,24,40,0.1) 0%, rgba(14,24,40,0.6) 100%)",
+            "linear-gradient(155deg, rgba(13,30,52,0.88) 0%, rgba(21,54,94,0.72) 48%, rgba(10,22,38,0.93) 100%), radial-gradient(ellipse at center, rgba(8,18,32,0) 35%, rgba(8,18,32,0.55) 100%)",
         }}
       />
 
