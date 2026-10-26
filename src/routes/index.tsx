@@ -54,6 +54,11 @@ function AdminLogin() {
     <div className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden select-none">
       {/* Brand background: mesh gradient + orbs + grain */}
       <div aria-hidden className="login-surface absolute inset-0 overflow-hidden">
+        {/* Base: gradiente oscuro del login del cliente */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(150deg, #070f1c 0%, #0d1a2e 38%, #13213a 68%, #123a40 100%)" }}
+        />
         <div
           className="login-orb -left-[14%] -top-[16%] h-[42rem] w-[42rem]"
           style={{
@@ -91,6 +96,8 @@ function AdminLogin() {
               "radial-gradient(ellipse at center, rgba(4,9,17,0) 26%, rgba(4,9,17,0.66) 100%)",
           }}
         />
+        {/* Círculos definidos (por encima de la viñeta) */}
+        <LoginRings />
       </div>
 
       <div className="w-full max-w-[400px] relative">
@@ -240,6 +247,32 @@ function AdminLogin() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function LoginRings() {
+  const ring = (size: number, pos: React.CSSProperties, alpha: number, fill = 0) => (
+    <div
+      className="absolute rounded-full"
+      style={{
+        width: size,
+        height: size,
+        border: `1px solid rgba(255,255,255,${alpha})`,
+        background: fill ? `rgba(255,255,255,${fill})` : undefined,
+        ...pos,
+      }}
+    />
+  );
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute rounded-full" style={{ width: 520, height: 520, right: -160, top: -170, background: "rgba(31,165,196,0.14)", filter: "blur(110px)" }} />
+      <div className="absolute rounded-full" style={{ width: 440, height: 440, left: -140, bottom: -150, background: "rgba(35,149,126,0.16)", filter: "blur(110px)" }} />
+      {ring(640, { right: -260, top: -260 }, 0.1)}
+      {ring(440, { right: -160, top: -160 }, 0.08)}
+      {ring(250, { right: -70, top: -70 }, 0.06, 0.015)}
+      {ring(520, { left: -260, bottom: -260 }, 0.08)}
+      {ring(320, { left: -150, bottom: -150 }, 0.06)}
     </div>
   );
 }
