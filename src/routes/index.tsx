@@ -58,29 +58,37 @@ function AdminLogin() {
           className="login-orb -left-[14%] -top-[16%] h-[42rem] w-[42rem]"
           style={{
             background:
-              "radial-gradient(circle, rgba(31,165,196,0.55) 0%, rgba(31,165,196,0) 68%)",
+              "radial-gradient(circle, rgba(60,90,134,0.5) 0%, rgba(60,90,134,0) 68%)",
           }}
         />
         <div
           className="login-orb login-orb-b -right-[16%] top-[4%] h-[38rem] w-[38rem]"
           style={{
             background:
-              "radial-gradient(circle, rgba(35,149,126,0.5) 0%, rgba(35,149,126,0) 68%)",
+              "radial-gradient(circle, rgba(31,165,196,0.26) 0%, rgba(31,165,196,0) 68%)",
           }}
         />
         <div
           className="login-orb login-orb-c -bottom-[22%] left-[24%] h-[40rem] w-[40rem]"
           style={{
             background:
-              "radial-gradient(circle, rgba(29,124,105,0.48) 0%, rgba(29,124,105,0) 70%)",
+              "radial-gradient(circle, rgba(43,66,100,0.45) 0%, rgba(43,66,100,0) 70%)",
           }}
         />
         <div className="login-grain absolute inset-0" />
         <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-40 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)",
+          }}
+        />
+        <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(8,18,32,0) 30%, rgba(8,18,32,0.55) 100%)",
+              "radial-gradient(ellipse at center, rgba(4,9,17,0) 26%, rgba(4,9,17,0.66) 100%)",
           }}
         />
       </div>
