@@ -252,13 +252,14 @@ function AdminLogin() {
 }
 
 function LoginRings() {
-  const ring = (size: number, pos: React.CSSProperties, alpha: number, fill = 0) => (
+  // anillos-v4: más definidos, con acento cian en el anillo externo superior
+  const ring = (size: number, pos: React.CSSProperties, color: string, fill = 0) => (
     <div
       className="absolute rounded-full"
       style={{
         width: size,
         height: size,
-        border: `1px solid rgba(255,255,255,${alpha})`,
+        border: `1px solid ${color}`,
         background: fill ? `rgba(255,255,255,${fill})` : undefined,
         ...pos,
       }}
@@ -266,13 +267,13 @@ function LoginRings() {
   );
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute rounded-full" style={{ width: 520, height: 520, right: -160, top: -170, background: "rgba(31,165,196,0.14)", filter: "blur(110px)" }} />
-      <div className="absolute rounded-full" style={{ width: 440, height: 440, left: -140, bottom: -150, background: "rgba(35,149,126,0.16)", filter: "blur(110px)" }} />
-      {ring(640, { right: -260, top: -260 }, 0.1)}
-      {ring(440, { right: -160, top: -160 }, 0.08)}
-      {ring(250, { right: -70, top: -70 }, 0.06, 0.015)}
-      {ring(520, { left: -260, bottom: -260 }, 0.08)}
-      {ring(320, { left: -150, bottom: -150 }, 0.06)}
+      <div className="absolute rounded-full" style={{ width: 520, height: 520, right: -160, top: -170, background: "rgba(31,165,196,0.16)", filter: "blur(110px)" }} />
+      <div className="absolute rounded-full" style={{ width: 440, height: 440, left: -140, bottom: -150, background: "rgba(35,149,126,0.18)", filter: "blur(110px)" }} />
+      {ring(640, { right: -260, top: -260, boxShadow: "0 0 40px rgba(31,165,196,0.08)" }, "rgba(95,211,236,0.24)")}
+      {ring(440, { right: -160, top: -160 }, "rgba(255,255,255,0.15)")}
+      {ring(250, { right: -70, top: -70 }, "rgba(255,255,255,0.12)", 0.02)}
+      {ring(520, { left: -260, bottom: -260 }, "rgba(255,255,255,0.14)")}
+      {ring(320, { left: -150, bottom: -150 }, "rgba(255,255,255,0.12)")}
     </div>
   );
 }
