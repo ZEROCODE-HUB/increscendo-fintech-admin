@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""
+aplicar_login_admin.py — Increscendo, panel de administración
+
+Lleva al login del admin el fondo del login del cliente:
+  - Gradiente oscuro navy → verde azulado.
+  - Círculos: brillos suaves + anillos con borde fino (arriba a la derecha y abajo a la izquierda).
+  - La foto de fondo queda como textura muy tenue (3.5 %).
+  - Tarjeta del formulario en blanco nítido para mejor contraste.
+
+Uso (desde la carpeta del proyecto ADMIN, donde está package.json):
+    python aplicar_login_admin.py --dry-run   # solo muestra qué cambiaría
+    python aplicar_login_admin.py             # aplica los cambios
+    python aplicar_login_admin.py --force     # aplica aunque un archivo tenga cambios tuyos
+
+Antes de tocar nada respalda cada archivo en _respaldo_AAAAMMDD_HHMM/ (fuera de src).
+Si un archivo ya tiene el contenido nuevo, lo salta: se puede correr dos veces.
+"""
+import argparse, base64, hashlib, os, shutil, sys
+from datetime import datetime
+
+# (estado, ruta, sha256 de la versión anterior, contenido nuevo en base64)
+# estado: A = nuevo, M = modificado, D = eliminado
+CHANGES = [
+    ('M', 'src/routes/index.tsx', '23acd8ef8f49dae1a1c6c15460ed81e0f4fac9ceae1de6d3180b0d154ac6717f', 'aW1wb3J0IHR5cGUgUmVhY3QgZnJvbSAicmVhY3QiOwppbXBvcnQgeyBjcmVhdGVGaWxlUm91dGUsIHVzZU5hdmlnYXRlIH0gZnJvbSAiQHRhbnN0YWNrL3JlYWN0LXJvdXRlciI7CmltcG9ydCB7IHVzZVN0YXRlIH0gZnJvbSAicmVhY3QiOwppbXBvcnQgeyBMb2dJbiwgRXllLCBFeWVPZmYsIE1haWwsIExvY2ssIFNoaWVsZENoZWNrLCBBbGVydENpcmNsZSB9IGZyb20gImx1Y2lkZS1yZWFjdCI7CmltcG9ydCB7IEJyYW5kTG9nbyB9IGZyb20gIkAvY29tcG9uZW50cy9icmFuZC1sb2dvIjsKaW1wb3J0IHsgc3VwYWJhc2UsIGdldEF1dGhFcnJvck1lc3NhZ2UgfSBmcm9tICJAL2xpYi9zdXBhYmFzZSI7CmltcG9ydCB7IGxvYWRBZG1pblByb2ZpbGUgfSBmcm9tICJAL2xpYi9hdXRoIjsKaW1wb3J0IHsgaXNEZW1vTW9kZSB9IGZyb20gIkAvbGliL2FwaS9zb3VyY2UiOwppbXBvcnQgbG9naW5CYWNrZ3JvdW5kIGZyb20gIkAvYXNzZXRzL2xvZ2luLWhlcm8ud2VicCI7CgpleHBvcnQgY29uc3QgUm91dGUgPSBjcmVhdGVGaWxlUm91dGUoIi8iKSh7CiAgaGVhZDogKCkgPT4gKHsKICAgIG1ldGE6IFsKICAgICAgeyB0aXRsZTogIlBhbmVsIGRlIEFkbWluaXN0cmFjacOzbiDigJQgSW5jcmVzY2VuZG8gRmludGVjaCIgfSwKICAgICAgeyBuYW1lOiAiZGVzY3JpcHRpb24iLCBjb250ZW50OiAiQWNjZXNvIGFsIGJhY2tvZmZpY2UgZGUgSW5jcmVzY2VuZG8gRmludGVjaC4iIH0sCiAgICAgIHsgbmFtZTogInJvYm90cyIsIGNvbnRlbnQ6ICJub2luZGV4LCBub2ZvbGxvdyIgfSwKICAgIF0sCiAgfSksCiAgY29tcG9uZW50OiBBZG1pbkxvZ2luLAp9KTsKCmZ1bmN0aW9uIEFkbWluTG9naW4oKSB7CiAgY29uc3QgW2VtYWlsLCBzZXRFbWFpbF0gPSB1c2VTdGF0ZSgiIik7CiAgY29uc3QgW3Bhc3N3b3JkLCBzZXRQYXNzd29yZF0gPSB1c2VTdGF0ZSgiIik7CiAgY29uc3QgW3Nob3dQdywgc2V0U2hvd1B3XSA9IHVzZVN0YXRlKGZhbHNlKTsKICBjb25zdCBbbG9hZGluZywgc2V0TG9hZGluZ10gPSB1c2VTdGF0ZShmYWxzZSk7CiAgY29uc3QgW2Vycm9yLCBzZXRFcnJvcl0gPSB1c2VTdGF0ZTxzdHJpbmcgfCBudWxsPihudWxsKTsKICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7CgogIGNvbnN0IGhhbmRsZVN1Ym1pdCA9IGFzeW5jIChlOiBSZWFjdC5Gb3JtRXZlbnQpID0+IHsKICAgIGUucHJldmVudERlZmF1bHQoKTsKICAgIHNldEVycm9yKG51bGwpOwogICAgaWYgKGlzRGVtb01vZGUgfHwgIXN1cGFiYXNlKSB7CiAgICAgIC8vIFNpbiBTdXBhYmFzZSBjb25maWd1cmFkbyBlbCBwYW5lbCBhYnJlIGVuIG1vZG8gZGVtb3N0cmFjacOzbi4KICAgICAgbmF2aWdhdGUoeyB0bzogIi9hZG1pbiIgfSk7CiAgICAgIHJldHVybjsKICAgIH0KICAgIHNldExvYWRpbmcodHJ1ZSk7CiAgICBjb25zdCB7IGRhdGEsIGVycm9yIH0gPSBhd2FpdCBzdXBhYmFzZS5hdXRoLnNpZ25JbldpdGhQYXNzd29yZCh7IGVtYWlsLCBwYXNzd29yZCB9KTsKICAgIGlmIChlcnJvciB8fCAhZGF0YS51c2VyKSB7CiAgICAgIHNldEVycm9yKGdldEF1dGhFcnJvck1lc3NhZ2UoZXJyb3I/Lm1lc3NhZ2UgPz8gIiIpKTsKICAgICAgc2V0TG9hZGluZyhmYWxzZSk7CiAgICAgIHJldHVybjsKICAgIH0KICAgIGNvbnN0IHByb2ZpbGUgPSBhd2FpdCBsb2FkQWRtaW5Qcm9maWxlKGRhdGEudXNlci5pZCk7CiAgICBpZiAoIXByb2ZpbGUpIHsKICAgICAgYXdhaXQgc3VwYWJhc2UuYXV0aC5zaWduT3V0KCk7CiAgICAgIHNldEVycm9yKCJUdSBjdWVudGEgbm8gdGllbmUgYWNjZXNvIGFsIHBhbmVsIGRlIGFkbWluaXN0cmFjacOzbi4iKTsKICAgICAgc2V0TG9hZGluZyhmYWxzZSk7CiAgICAgIHJldHVybjsKICAgIH0KICAgIG5hdmlnYXRlKHsgdG86ICIvYWRtaW4iIH0pOwogIH07CgogIHJldHVybiAoCiAgICA8ZGl2IGNsYXNzTmFtZT0ibWluLWgtc2NyZWVuIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHB4LTQgcHktMTAgcmVsYXRpdmUgb3ZlcmZsb3ctaGlkZGVuIHNlbGVjdC1ub25lIj4KICAgICAgey8qIEZvbmRvOiBncmFkaWVudGUgb3NjdXJvIChtaXNtbyBxdWUgZWwgbG9naW4gZGVsIGNsaWVudGUpICsgZm90byBtdXkgdGVudWUgKi99CiAgICAgIDxkaXYKICAgICAgICBhcmlhLWhpZGRlbgogICAgICAgIGNsYXNzTmFtZT0iYWJzb2x1dGUgaW5zZXQtMCIKICAgICAgICBzdHlsZT17eyBiYWNrZ3JvdW5kOiAibGluZWFyLWdyYWRpZW50KDE1MGRlZywgIzA3MGYxYyAwJSwgIzBkMWEyZSAzOCUsICMxMzIxM2EgNjglLCAjMTIzYTQwIDEwMCUpIiB9fQogICAgICAvPgogICAgICA8ZGl2IGFyaWEtaGlkZGVuIGNsYXNzTmFtZT0iYWJzb2x1dGUgaW5zZXQtMCBvdmVyZmxvdy1oaWRkZW4iIHN0eWxlPXt7IG9wYWNpdHk6IDAuMDM1IH19PgogICAgICAgIDxpbWcgc3JjPXtsb2dpbkJhY2tncm91bmR9IGFsdD0iIiBjbGFzc05hbWU9ImFic29sdXRlIGluc2V0LTAgaC1mdWxsIHctZnVsbCBvYmplY3QtY292ZXIgYW5pbWF0ZS1rZW5idXJucyIgLz4KICAgICAgPC9kaXY+CgogICAgICB7LyogQ8OtcmN1bG9zOiBicmlsbG9zIHN1YXZlcyArIGFuaWxsb3MgY29uIGJvcmRlIGZpbm8gKi99CiAgICAgIDxMb2dpblJpbmdzIC8+CgogICAgICA8ZGl2IGNsYXNzTmFtZT0idy1mdWxsIG1heC13LVs0MDBweF0gcmVsYXRpdmUiPgogICAgICAgIHsvKiBMb2dvICsgdGl0bGUgKi99CiAgICAgICAgPGRpdiBjbGFzc05hbWU9InRleHQtY2VudGVyIG1iLTEwIj4KICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJmbGV4IGp1c3RpZnktY2VudGVyIG1iLTQiPgogICAgICAgICAgICA8QnJhbmRMb2dvIHNpemU9ezUyfSB2YXJpYW50PSJsaWdodCIgLz4KICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPGgxIGNsYXNzTmFtZT0iZm9udC1kaXNwbGF5IHRleHQtMnhsIG1kOnRleHQtM3hsIGZvbnQtc2VtaWJvbGQgdGV4dC13aGl0ZSB0cmFja2luZy10aWdodCI+CiAgICAgICAgICAgIFBhbmVsIGRlIEFkbWluaXN0cmFjacOzbgogICAgICAgICAgPC9oMT4KICAgICAgICAgIDxwIGNsYXNzTmFtZT0idGV4dC1iYXNlIHRleHQtd2hpdGUvNjAgbXQtMiI+SW5pY2lhIHNlc2nDs24gcGFyYSBjb250aW51YXIuPC9wPgogICAgICAgICAge2lzRGVtb01vZGUgJiYgKAogICAgICAgICAgICA8cCBjbGFzc05hbWU9Im10LTMgaW5saW5lLWJsb2NrIHJvdW5kZWQtbWQgYmctYW1iZXItNDAwLzkwIHB4LTIuNSBweS0xIHRleHQtWzExcHhdIGZvbnQtc2VtaWJvbGQgdGV4dC1uYXZ5LTcwMCI+CiAgICAgICAgICAgICAgTW9kbyBkZW1vc3RyYWNpw7NuOiBlbnRyYSBjb24gY3VhbHF1aWVyIGNvcnJlbyB5IGNvbnRyYXNlw7FhLgogICAgICAgICAgICA8L3A+CiAgICAgICAgICApfQogICAgICAgIDwvZGl2PgoKICAgICAgICB7LyogR2xhc3MgY2FyZCAqL30KICAgICAgICA8ZGl2CiAgICAgICAgICBjbGFzc05hbWU9InJvdW5kZWQtMnhsIHAtOCBzaGFkb3ctWzBfMTZweF80OHB4X3JnYmEoMCwwLDAsMC4zNSldIHJlbGF0aXZlIG92ZXJmbG93LWhpZGRlbiIKICAgICAgICAgIHN0eWxlPXt7CiAgICAgICAgICAgIGJhY2tncm91bmQ6ICJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuOTcpIiwKICAgICAgICAgICAgYmFja2Ryb3BGaWx0ZXI6ICJibHVyKDI0cHgpIiwKICAgICAgICAgICAgV2Via2l0QmFja2Ryb3BGaWx0ZXI6ICJibHVyKDI0cHgpIiwKICAgICAgICAgICAgYm9yZGVyOiAiMXB4IHNvbGlkIHJnYmEoMjU1LCAyNTUsIDI1NSwgMC42KSIsCiAgICAgICAgICAgIGJveFNoYWRvdzogIjAgMzBweCA4MHB4IHJnYmEoMCwwLDAsMC41KSIsCiAgICAgICAgICB9fQogICAgICAgID4KICAgICAgICAgIHsvKiBMaWdodCByZWZsZWN0aW9uIGhpZ2hsaWdodCAqL30KICAgICAgICAgIDxkaXYKICAgICAgICAgICAgYXJpYS1oaWRkZW4KICAgICAgICAgICAgY2xhc3NOYW1lPSJhYnNvbHV0ZSAtdG9wLTIwIC1yaWdodC0yMCB3LTQwIGgtNDAgcm91bmRlZC1mdWxsIG9wYWNpdHktMzAgcG9pbnRlci1ldmVudHMtbm9uZSIKICAgICAgICAgICAgc3R5bGU9e3sKICAgICAgICAgICAgICBiYWNrZ3JvdW5kOiAicmFkaWFsLWdyYWRpZW50KGNpcmNsZSwgcmdiYSgyNTUsMjU1LDI1NSwwLjYpIDAlLCB0cmFuc3BhcmVudCA3MCUpIiwKICAgICAgICAgICAgfX0KICAgICAgICAgIC8+CiAgICAgICAgICA8ZGl2CiAgICAgICAgICAgIGFyaWEtaGlkZGVuCiAgICAgICAgICAgIGNsYXNzTmFtZT0iYWJzb2x1dGUgLWJvdHRvbS0xNiAtbGVmdC0xNiB3LTMyIGgtMzIgcm91bmRlZC1mdWxsIG9wYWNpdHktMjAgcG9pbnRlci1ldmVudHMtbm9uZSIKICAgICAgICAgICAgc3R5bGU9e3sKICAgICAgICAgICAgICBiYWNrZ3JvdW5kOiAicmFkaWFsLWdyYWRpZW50KGNpcmNsZSwgcmdiYSgyNTUsMjU1LDI1NSwwLjMpIDAlLCB0cmFuc3BhcmVudCA3MCUpIiwKICAgICAgICAgICAgfX0KICAgICAgICAgIC8+CiAgICAgICAgICA8Zm9ybSBvblN1Ym1pdD17aGFuZGxlU3VibWl0fSBjbGFzc05hbWU9InNwYWNlLXktNSI+CiAgICAgICAgICAgIDxkaXY+CiAgICAgICAgICAgICAgPGxhYmVsIGh0bWxGb3I9ImVtYWlsIiBjbGFzc05hbWU9ImJsb2NrIHRleHQteHMgZm9udC1zZW1pYm9sZCB0ZXh0LWZvcmVncm91bmQgbWItMS41Ij4KICAgICAgICAgICAgICAgIENvcnJlbyBlbGVjdHLDs25pY28KICAgICAgICAgICAgICA8L2xhYmVsPgogICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJyZWxhdGl2ZSI+CiAgICAgICAgICAgICAgICA8TWFpbAogICAgICAgICAgICAgICAgICBzaXplPXsxNX0KICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJhYnNvbHV0ZSBsZWZ0LTMgdG9wLTEvMiAtdHJhbnNsYXRlLXktMS8yIHRleHQtbXV0ZWQtZm9yZWdyb3VuZC82MCIKICAgICAgICAgICAgICAgIC8+CiAgICAgICAgICAgICAgICA8aW5wdXQKICAgICAgICAgICAgICAgICAgaWQ9ImVtYWlsIgogICAgICAgICAgICAgICAgICB0eXBlPSJlbWFpbCIKICAgICAgICAgICAgICAgICAgdmFsdWU9e2VtYWlsfQogICAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IHNldEVtYWlsKGUudGFyZ2V0LnZhbHVlKX0KICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9InR1QGluY3Jlc2NlbmRvZmludGVjaC5jb20iCiAgICAgICAgICAgICAgICAgIHJlcXVpcmVkPXshaXNEZW1vTW9kZX0KICAgICAgICAgICAgICAgICAgYXV0b0NvbXBsZXRlPSJlbWFpbCIKICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJ3LWZ1bGwgaC0xMSBwbC05IHByLTMuNSByb3VuZGVkLWxnIGJvcmRlciBib3JkZXItaW5wdXQgYmctYmFja2dyb3VuZCB0ZXh0LXNtIHRleHQtZm9yZWdyb3VuZCBwbGFjZWhvbGRlcjp0ZXh0LW11dGVkLWZvcmVncm91bmQvNTAgb3V0bGluZS1ub25lIHRyYW5zaXRpb24tYWxsIGR1cmF0aW9uLTIwMCBmb2N1czpib3JkZXItcmluZyBmb2N1czpyaW5nLTIgZm9jdXM6cmluZy1yaW5nLzIwIgogICAgICAgICAgICAgICAgLz4KICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8ZGl2PgogICAgICAgICAgICAgIDxsYWJlbAogICAgICAgICAgICAgICAgaHRtbEZvcj0icGFzc3dvcmQiCiAgICAgICAgICAgICAgICBjbGFzc05hbWU9ImJsb2NrIHRleHQteHMgZm9udC1zZW1pYm9sZCB0ZXh0LWZvcmVncm91bmQgbWItMS41IgogICAgICAgICAgICAgID4KICAgICAgICAgICAgICAgIENvbnRyYXNlw7FhCiAgICAgICAgICAgICAgPC9sYWJlbD4KICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0icmVsYXRpdmUiPgogICAgICAgICAgICAgICAgPExvY2sKICAgICAgICAgICAgICAgICAgc2l6ZT17MTV9CiAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT0iYWJzb2x1dGUgbGVmdC0zIHRvcC0xLzIgLXRyYW5zbGF0ZS15LTEvMiB0ZXh0LW11dGVkLWZvcmVncm91bmQvNjAiCiAgICAgICAgICAgICAgICAvPgogICAgICAgICAgICAgICAgPGlucHV0CiAgICAgICAgICAgICAgICAgIGlkPSJwYXNzd29yZCIKICAgICAgICAgICAgICAgICAgdHlwZT17c2hvd1B3ID8gInRleHQiIDogInBhc3N3b3JkIn0KICAgICAgICAgICAgICAgICAgdmFsdWU9e3Bhc3N3b3JkfQogICAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IHNldFBhc3N3b3JkKGUudGFyZ2V0LnZhbHVlKX0KICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9IkluZ3Jlc2EgdHUgY29udHJhc2XDsWEiCiAgICAgICAgICAgICAgICAgIHJlcXVpcmVkPXshaXNEZW1vTW9kZX0KICAgICAgICAgICAgICAgICAgYXV0b0NvbXBsZXRlPSJjdXJyZW50LXBhc3N3b3JkIgogICAgICAgICAgICAgICAgICBjbGFzc05hbWU9InctZnVsbCBoLTExIHBsLTkgcHItMTAgcm91bmRlZC1sZyBib3JkZXIgYm9yZGVyLWlucHV0IGJnLWJhY2tncm91bmQgdGV4dC1zbSB0ZXh0LWZvcmVncm91bmQgcGxhY2Vob2xkZXI6dGV4dC1tdXRlZC1mb3JlZ3JvdW5kLzUwIG91dGxpbmUtbm9uZSB0cmFuc2l0aW9uLWFsbCBkdXJhdGlvbi0yMDAgZm9jdXM6Ym9yZGVyLXJpbmcgZm9jdXM6cmluZy0yIGZvY3VzOnJpbmctcmluZy8yMCIKICAgICAgICAgICAgICAgIC8+CiAgICAgICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgICAgIHR5cGU9ImJ1dHRvbiIKICAgICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0U2hvd1B3KCh2KSA9PiAhdil9CiAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT0iYWJzb2x1dGUgcmlnaHQtMyB0b3AtMS8yIC10cmFuc2xhdGUteS0xLzIgdGV4dC1tdXRlZC1mb3JlZ3JvdW5kLzYwIGhvdmVyOnRleHQtZm9yZWdyb3VuZCB0cmFuc2l0aW9uIGN1cnNvci1wb2ludGVyIgogICAgICAgICAgICAgICAgICBhcmlhLWxhYmVsPXtzaG93UHcgPyAiT2N1bHRhciBjb250cmFzZcOxYSIgOiAiTW9zdHJhciBjb250cmFzZcOxYSJ9CiAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgIHtzaG93UHcgPyA8RXllT2ZmIHNpemU9ezE2fSAvPiA6IDxFeWUgc2l6ZT17MTZ9IC8+fQogICAgICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgIDwvZGl2PgoKICAgICAgICAgICAge2Vycm9yICYmICgKICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1zdGFydCBnYXAtMiByb3VuZGVkLWxnIGJvcmRlciBib3JkZXItcmVkLTIwMCBiZy1yZWQtNTAgcHgtMyBweS0yLjUgdGV4dC14cyB0ZXh0LXJlZC03MDAiPgogICAgICAgICAgICAgICAgPEFsZXJ0Q2lyY2xlIHNpemU9ezE0fSBjbGFzc05hbWU9Im10LTAuNSBzaHJpbmstMCIgLz4KICAgICAgICAgICAgICAgIDxzcGFuPntlcnJvcn08L3NwYW4+CiAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICl9CgogICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgdHlwZT0ic3VibWl0IgogICAgICAgICAgICAgIGRpc2FibGVkPXtsb2FkaW5nfQogICAgICAgICAgICAgIGNsYXNzTmFtZT0idy1mdWxsIGgtMTEgcm91bmRlZC1sZyBiZy1wcmltYXJ5IHRleHQtcHJpbWFyeS1mb3JlZ3JvdW5kIHRleHQtc20gZm9udC1zZW1pYm9sZCBpbmxpbmUtZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgZ2FwLTIgdHJhbnNpdGlvbi1hbGwgZHVyYXRpb24tMjAwIGhvdmVyOmJnLWJyYW5kLWRhcmsgYWN0aXZlOnNjYWxlLVswLjk4XSBkaXNhYmxlZDpvcGFjaXR5LTUwIGRpc2FibGVkOmN1cnNvci1ub3QtYWxsb3dlZCBjdXJzb3ItcG9pbnRlciIKICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtsb2FkaW5nID8gKAogICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJpbmxpbmUtYmxvY2sgdy00IGgtNCBib3JkZXItMiBib3JkZXItd2hpdGUvMzAgYm9yZGVyLXQtd2hpdGUgcm91bmRlZC1mdWxsIGFuaW1hdGUtc3BpbiIgLz4KICAgICAgICAgICAgICApIDogKAogICAgICAgICAgICAgICAgPD4KICAgICAgICAgICAgICAgICAgPExvZ0luIHNpemU9ezE2fSAvPgogICAgICAgICAgICAgICAgICBJbmljaWFyIHNlc2nDs24KICAgICAgICAgICAgICAgIDwvPgogICAgICAgICAgICAgICl9CiAgICAgICAgICAgIDwvYnV0dG9uPgogICAgICAgICAgPC9mb3JtPgoKICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJtdC02IGZsZXggZmxleC1jb2wgaXRlbXMtY2VudGVyIGdhcC00IHB0LTQgYm9yZGVyLXQgYm9yZGVyLWdyYXktMTAwIj4KICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImlubGluZS1mbGV4IGl0ZW1zLWNlbnRlciBnYXAtMiBweC0zIHB5LTEuNSByb3VuZGVkLW1kIGJnLW11dGVkIj4KICAgICAgICAgICAgICA8U2hpZWxkQ2hlY2sgc2l6ZT17MTJ9IGNsYXNzTmFtZT0idGV4dC1icmFuZC1uYXZ5IiAvPgogICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT0idGV4dC1bMTBweF0gZm9udC1zZW1pYm9sZCB1cHBlcmNhc2UgdHJhY2tpbmctd2lkZXIgdGV4dC1icmFuZC1uYXZ5Ij4KICAgICAgICAgICAgICAgIEFjY2VzbyByZXN0cmluZ2lkbyBhbCBlcXVpcG8KICAgICAgICAgICAgICA8L3NwYW4+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8cCBjbGFzc05hbWU9InRleHQtY2VudGVyIHRleHQtWzExcHhdIHRleHQtbXV0ZWQtZm9yZWdyb3VuZCBsZWFkaW5nLXJlbGF4ZWQiPgogICAgICAgICAgICAgIFNvbG8gYWRtaW5pc3RyYWRvcmVzIGF1dG9yaXphZG9zLgogICAgICAgICAgICAgIDxiciAvPgogICAgICAgICAgICAgIEluY3Jlc2NlbmRvIEZpbnRlY2ggJmNvcHk7IHtuZXcgRGF0ZSgpLmdldEZ1bGxZZWFyKCl9CiAgICAgICAgICAgIDwvcD4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICk7Cn0KCmZ1bmN0aW9uIExvZ2luUmluZ3MoKSB7CiAgY29uc3QgcmluZyA9IChzaXplOiBudW1iZXIsIHBvczogUmVhY3QuQ1NTUHJvcGVydGllcywgYWxwaGE6IG51bWJlciwgZmlsbCA9IDApID0+ICgKICAgIDxkaXYKICAgICAgY2xhc3NOYW1lPSJhYnNvbHV0ZSByb3VuZGVkLWZ1bGwiCiAgICAgIHN0eWxlPXt7CiAgICAgICAgd2lkdGg6IHNpemUsCiAgICAgICAgaGVpZ2h0OiBzaXplLAogICAgICAgIGJvcmRlcjogYDFweCBzb2xpZCByZ2JhKDI1NSwyNTUsMjU1LCR7YWxwaGF9KWAsCiAgICAgICAgYmFja2dyb3VuZDogZmlsbCA/IGByZ2JhKDI1NSwyNTUsMjU1LCR7ZmlsbH0pYCA6IHVuZGVmaW5lZCwKICAgICAgICAuLi5wb3MsCiAgICAgIH19CiAgICAvPgogICk7CiAgcmV0dXJuICgKICAgIDxkaXYgYXJpYS1oaWRkZW4gY2xhc3NOYW1lPSJwb2ludGVyLWV2ZW50cy1ub25lIGFic29sdXRlIGluc2V0LTAgb3ZlcmZsb3ctaGlkZGVuIj4KICAgICAgPGRpdiBjbGFzc05hbWU9ImFic29sdXRlIHJvdW5kZWQtZnVsbCIgc3R5bGU9e3sgd2lkdGg6IDUyMCwgaGVpZ2h0OiA1MjAsIHJpZ2h0OiAtMTYwLCB0b3A6IC0xNzAsIGJhY2tncm91bmQ6ICJyZ2JhKDMxLDE2NSwxOTYsMC4xNikiLCBmaWx0ZXI6ICJibHVyKDExMHB4KSIgfX0gLz4KICAgICAgPGRpdiBjbGFzc05hbWU9ImFic29sdXRlIHJvdW5kZWQtZnVsbCIgc3R5bGU9e3sgd2lkdGg6IDQ0MCwgaGVpZ2h0OiA0NDAsIGxlZnQ6IC0xNDAsIGJvdHRvbTogLTE1MCwgYmFja2dyb3VuZDogInJnYmEoMzUsMTQ5LDEyNiwwLjE4KSIsIGZpbHRlcjogImJsdXIoMTEwcHgpIiB9fSAvPgogICAgICB7cmluZyg2NDAsIHsgcmlnaHQ6IC0yNjAsIHRvcDogLTI2MCB9LCAwLjA5KX0KICAgICAge3JpbmcoNDQwLCB7IHJpZ2h0OiAtMTYwLCB0b3A6IC0xNjAgfSwgMC4wNyl9CiAgICAgIHtyaW5nKDI1MCwgeyByaWdodDogLTcwLCB0b3A6IC03MCB9LCAwLjA1LCAwLjAxNSl9CiAgICAgIHtyaW5nKDUyMCwgeyBsZWZ0OiAtMjYwLCBib3R0b206IC0yNjAgfSwgMC4wNyl9CiAgICAgIHtyaW5nKDMyMCwgeyBsZWZ0OiAtMTUwLCBib3R0b206IC0xNTAgfSwgMC4wNSl9CiAgICA8L2Rpdj4KICApOwp9Cg=='),
+]
+
+def sha(data: bytes) -> str:
+    # Ignora diferencias de fin de línea (Windows CRLF vs LF).
+    return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Aplica el nuevo fondo del login del admin de Increscendo.")
+    ap.add_argument("--dry-run", action="store_true", help="No escribe nada; solo muestra qué haría.")
+    ap.add_argument("--force", action="store_true", help="Sobrescribe aunque el archivo tenga cambios locales.")
+    ap.add_argument("--root", default=".", help="Carpeta del proyecto (por defecto, la actual).")
+    args = ap.parse_args()
+
+    root = os.path.abspath(args.root)
+    if not os.path.isfile(os.path.join(root, "package.json")) or not os.path.isfile(os.path.join(root, "src", "routes", "admin.tsx")):
+        print("ERROR: no encuentro package.json y src/routes/admin.tsx en", root)
+        print("Corre el script desde la carpeta del proyecto del admin (increscendo-admin).")
+        return 1
+
+    plan, conflicts = [], []
+    for status, rel, old_hash, b64 in CHANGES:
+        path = os.path.join(root, *rel.split("/"))
+        new = base64.b64decode(b64) if b64 is not None else None
+        exists = os.path.isfile(path)
+        current = open(path, "rb").read() if exists else None
+        if status == "D":
+            if not exists:
+                continue
+            action = "eliminar"
+        else:
+            if exists and new is not None and sha(current) == sha(new):
+                continue  # ya aplicado
+            action = "crear" if not exists else "actualizar"
+        if exists and old_hash and sha(current) != old_hash and (new is None or sha(current) != sha(new)):
+            conflicts.append(rel)
+        plan.append((action, rel, path, new, exists))
+
+    if not plan:
+        print("Nada que hacer: los cambios ya están aplicados.")
+        return 0
+
+    print(f"Proyecto: {root}")
+    for action, rel, *_ in plan:
+        flag = "  (tiene cambios tuyos)" if rel in conflicts else ""
+        print(f"  {action:<10} {rel}{flag}")
+
+    if conflicts and not args.force:
+        print()
+        print("Estos archivos no coinciden con la versión que te entregué (los editaste o son de otra versión):")
+        for c in conflicts:
+            print("   -", c)
+        print("No apliqué nada. Revisa y, si quieres sobrescribirlos (quedan respaldados), usa --force.")
+        return 2
+
+    if args.dry_run:
+        print("\n--dry-run: no se escribió nada.")
+        return 0
+
+    backup = os.path.join(root, "_respaldo_" + datetime.now().strftime("%Y%m%d_%H%M"))
+    for action, rel, path, new, exists in plan:
+        if exists:
+            dst = os.path.join(backup, *rel.split("/"))
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(path, dst)
+        if action == "eliminar":
+            os.remove(path)
+        else:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as f:
+                f.write(new)
+
+    gi = os.path.join(root, ".gitignore")
+    try:
+        txt = open(gi, encoding="utf-8").read() if os.path.isfile(gi) else ""
+        if "_respaldo_" not in txt:
+            with open(gi, "a", encoding="utf-8") as f:
+                f.write("\n# Respaldos de scripts de cambios\n_respaldo_*/\n")
+    except OSError:
+        pass
+
+    print(f"\nListo: {len(plan)} archivo(s). Respaldo en {os.path.relpath(backup, root)}")
+    print("Ahora: detén el servidor (Ctrl+C) y vuelve a correr  npm run dev")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
